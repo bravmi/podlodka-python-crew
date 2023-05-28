@@ -17,14 +17,22 @@ import serializers
 import services
 from config import Settings
 
-app = FastAPI()
-
 logger = logging.getLogger(__name__)
 
 settings = Settings()
 
 engine = db.engine_factory(settings)
 db.Session.configure(bind=engine)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await engine.connect()
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.exception_handler(services.AuthError)
@@ -46,14 +54,6 @@ async def not_found_middleware(request, exc: services.NotFoundError):
     return await http_exception_handler(
         request, HTTPException(HTTPStatus.NOT_FOUND, detail=str(exc))
     )
-
-
-# TODO: make use of lifespan
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await engine.connect()
-    yield
-    await engine.dispose()
 
 
 @app.get("/")
