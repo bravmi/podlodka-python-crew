@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, Request, templating, Query, Body
+from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request, templating
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
@@ -48,6 +48,7 @@ async def not_found_middleware(request, exc: services.NotFoundError):
     )
 
 
+# TODO: make use of lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await engine.connect()
@@ -107,14 +108,14 @@ async def create_group(
     return serializers.Group.from_orm(group)
 
 
-@app.get('/groups/{group_id}')
+@app.get('/groups/{group_id}', response_model=serializers.Group)
 async def get_group(
     group_id: int,
     user: Annotated[models.User, Depends(auth.get_user)],
     session: Annotated[AsyncSession, Depends(db.get_session)],
 ):
     group = await services.get_group(group_id, user, session)
-    return serializers.Group.from_orm(group)
+    return group
 
 
 @app.post('/groups/{group_id}/members')

@@ -37,5 +37,7 @@ async def db_connection(db_engine):
 
 @pytest.fixture()
 async def db_session(db_connection):
+    transaction = await db_connection.begin()
     async with db.Session() as session:
         yield session
+    await transaction.rollback()

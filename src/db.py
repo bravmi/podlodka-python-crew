@@ -2,7 +2,7 @@ import logging
 import uuid
 
 from asyncpg import Connection
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from config import Settings
 
@@ -29,7 +29,7 @@ def engine_factory(settings: Settings):
     )
 
 
-Session = async_sessionmaker()
+Session = async_sessionmaker(expire_on_commit=False)
 
 
 async def get_session():

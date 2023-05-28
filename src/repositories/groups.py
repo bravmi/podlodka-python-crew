@@ -14,8 +14,12 @@ logger = logging.getLogger(__name__)
 async def create_group(
     session: AsyncSession, group_in: serializers.GroupIn
 ) -> models.Group:
-    pass
+    group = models.Group(name=group_in.name)
+    if group_in.members:
+        group.members = await repositories.users.get_by_ids(session, group_in.members)
+    session.add(group)
+    return group
 
 
 async def get_by_id(session: AsyncSession, group_id: int) -> models.Group | None:
-    pass
+    return await session.get(models.Group, group_id)

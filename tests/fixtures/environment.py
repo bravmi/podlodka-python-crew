@@ -1,7 +1,7 @@
-import pytest
 import asyncio
-
 import pathlib
+
+import pytest
 
 from config import Settings
 

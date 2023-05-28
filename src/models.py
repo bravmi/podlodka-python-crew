@@ -1,9 +1,9 @@
 from typing import Annotated
 
-from sqlalchemy import Float, ForeignKey, Integer, String, MetaData, Table, Column
+from sqlalchemy import Column, Float, ForeignKey, Integer, MetaData, String, Table
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
-from sqlalchemy.orm import relationship, mapped_column, DeclarativeBase, Mapped
 from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 metadata = MetaData(
     naming_convention={
@@ -43,7 +43,7 @@ class Group(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
 
     members: Mapped[list['User']] = relationship(
-        back_populates='groups', secondary='memberships'
+        back_populates='groups', secondary='memberships', lazy='joined'
     )
 
 

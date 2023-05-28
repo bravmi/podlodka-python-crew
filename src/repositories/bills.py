@@ -17,7 +17,16 @@ class Bill(BaseModel):
 
 
 def create_bill(session: AsyncSession, bill_in: Bill) -> models.Bill:
-    pass
+    bill = models.Bill(
+        description=bill_in.description,
+        total_amount=bill_in.total_amount,
+        payer_id=bill_in.payer_id,
+        group_id=bill_in.group_id,
+    )
+    for user_id, amount in bill_in.shares.items():
+        bill.shares.append(models.BillShare(user_id=user_id, amount=amount))
+    session.add(bill)
+    return bill
 
 
 async def get_bill(session: AsyncSession, bill_id: int) -> models.Bill | None:
