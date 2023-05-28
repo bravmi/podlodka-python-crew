@@ -1,4 +1,5 @@
 import logging
+from contextlib import suppress
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -65,6 +66,8 @@ async def create_bill(
     payer = user
     if bill_in.payer_id:
         payer = await repositories.users.get_by_id(session, bill_in.payer_id)
+    if not payer:
+        raise NotFoundError(f'Payer id={bill_in.payer_id} not found')
 
     participants = [member for member in group.members if member is not payer]
     if bill_in.shares:
@@ -75,9 +78,11 @@ async def create_bill(
     shares = bill_in.shares or []
     defined_shares = {share.user_id: share.amount for share in shares if share.amount}
     defined_amounts = sum(defined_shares.values())
-    default_amount = (bill_in.total_amount - defined_amounts) / (
-        len(participants) - len(defined_shares) + 1  # payer
-    )
+    default_amount = 0
+    with suppress(ZeroDivisionError):
+        default_amount = (bill_in.total_amount - defined_amounts) / (
+            len(participants) - len(defined_shares) + 1  # payer
+        )
 
     bill = repositories.bills.create_bill(
         session,
