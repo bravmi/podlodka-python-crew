@@ -1,6 +1,6 @@
 import pytest
 import yoyo
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 import db
 
@@ -29,15 +29,16 @@ async def db_engine(settings):
 
 
 @pytest.fixture(scope='session')
-async def db_connection(db_engine):
+async def db_connection(db_engine: AsyncEngine):
     async with db_engine.connect() as connection:
-        db.Session.configure(bind=connection)
         yield connection
 
 
 @pytest.fixture()
-async def db_session(db_connection):
+async def db_session(db_connection: AsyncConnection):
     transaction = await db_connection.begin()
-    async with db.Session() as session:
+    async with db.Session(
+        bind=db_connection, join_transaction_mode='create_savepoint'
+    ) as session:
         yield session
     await transaction.rollback()
