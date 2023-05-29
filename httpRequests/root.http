@@ -1,0 +1,108 @@
+### Ready
+GET localhost:8000/
+Content-Type: application/json
+
+### Ping DB
+GET localhost:8000/db
+
+### Create user
+POST localhost:8000/users
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "johndoe55@example.com",
+    "password": "password"
+}
+
+### Get user
+GET localhost:8000/users/6
+Content-Type: application/json
+
+### Users/me
+GET localhost:8000/users/me
+Authorization: Basic {{username}} {{password}}
+
+### Get users
+GET localhost:8000/users?user_ids=1
+Authorization: Basic {{username}} {{password}}
+
+### Create group
+POST localhost:8000/groups
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+    "name": "Oh Does",
+    "members": [5, 6, 7, 8]
+}
+
+### Get group
+GET localhost:8000/groups/2
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+### Add member
+POST localhost:8000/groups/1/members
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+1
+
+### Create bill
+POST localhost:8000/bills
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+    "description": "Пивко",
+    "total_amount": 300,
+    "group_id": 2
+}
+
+### Create bill with payer
+POST localhost:8000/bills
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+    "description": "Пивко",
+    "total_amount": 300,
+    "group_id": 5,
+    "payer_id": 5,
+    "shares": [
+        {"user_id": 1},
+        {"user_id": 6}
+    ]
+}
+
+### Create bill with shares
+POST localhost:8000/bills
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+    "description": "Пивко",
+    "total_amount": 350,
+    "group_id": 2,
+    "shares": [
+        {"user_id": 5},
+        {"user_id": 6, "amount": 150}
+    ]
+}
+
+### Get bill
+GET localhost:8000/bills/24
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+### Add transaction
+POST localhost:8000/transactions
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+    "amount": 100,
+    "bill_id": 1,
+    "recipient_id": 1
+}
